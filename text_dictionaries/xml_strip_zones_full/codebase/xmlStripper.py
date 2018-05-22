@@ -86,7 +86,7 @@ class xmlStripper(object):
         zone_data_dictionary = {}
         for source_data in self.source_dictionary:
             file_name = source_data[0][:-4]
-            zone_data_dictionary.update({file_name: [source_data[1][2], []]})
+            zone_data_dictionary.update({file_name: []})
             for root in self.root_list:
                 if root.find('.//source').get('file').split('/')[-1] == source_data[0]:
                     for tag in self.tags:
@@ -95,6 +95,10 @@ class xmlStripper(object):
                             r = float('{:.5f}'.format(((int(zone.get('r')) * 400) / 1440)/source_data[1][2][0]))
                             t = float('{:.5f}'.format(1-((int(zone.get('t')) * 400) / 1440)/source_data[1][2][1]))
                             b = float('{:.5f}'.format(1-((int(zone.get('b')) * 400) / 1440)/source_data[1][2][1]))
-                            zone_data_dictionary[file_name][1].append([zone.tag,t,r,b,l])
 
+                            if zone.tag == 'tableZone':
+                                zone_data_dictionary[file_name].append([zone.tag,t,r,b,l,zone])
+                            else:
+                                zone_data_dictionary[file_name].append([zone.tag,t,r,b,l])
+                            
         return (zone_data_dictionary, dictionary_length)

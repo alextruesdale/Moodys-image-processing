@@ -1,7 +1,6 @@
 """Class housing testing operators for words in xml output."""
 
 import re
-
 from pylev import levenshtein
 
 def capital_search(word):
@@ -67,8 +66,12 @@ def check_capital_title(captured_words):
     else:
         operator_words = captured_words[:2]
 
-    if all(capital_search(word[0]) for word in operator_words):
+    if all([capital_search(word[0]) for word in operator_words]):
         is_not_title = True
+
+    # if is_not_title is False:
+        # print('check_capital_title')
+        # print(captured_words)
 
     return is_not_title
 
@@ -89,7 +92,8 @@ def capitals_ratio(captured_words, string_continuous):
         capitals_ratio = produce_ratio(captured_words[:-1])
 
     if capitals_ratio < .72:
-        # print('PITCH caps_ratio:', ' '.join([word[0] for word in captured_words]), '|', capitals_ratio)
+        # print('capitals_ratio')
+        # print(captured_words)
         captured_words = []
 
     return captured_words
@@ -98,12 +102,13 @@ def identify_company_extensions(captured_words):
     """"""
 
     is_protected = False
-    end_word = captured_words[-1][0]
-    extension_list = ['CO', 'COMPANY', 'CORPORATION', 'INCORPORATED', 'INC', 'LTD', 'THE', 'CORP', 'MILLS', 'WORKS']
-    distance_list = [levenshtein(check_word, end_word) for check_word in extension_list]
+    if len(captured_words) > 0:
+        end_word = captured_words[-1][0]
+        extension_list = ['CO', 'COMPANY', 'CORPORATION', 'INCORPORATED', 'INC', 'LTD', 'THE', 'CORP', 'MILLS', 'WORKS']
+        distance_list = [levenshtein(check_word, strip_punctuation(end_word)) for check_word in extension_list]
 
-    if any(distance <= 1 for distance in distance_list):
-        is_protected = True
+        if any(distance <= 1 for distance in distance_list):
+            is_protected = True
 
     return is_protected
 
@@ -124,15 +129,15 @@ def check_against_popular(word, captured_words, string_continuous):
                           'PROVISIONAL', 'SECURITIES', 'CERTIFICATES', 'SUBSIDIARY']
 
     popular_words_medium = ['WARRANTS', 'EXCHANGE', 'INCOME', 'RIGHTS', 'VOTING', 'OUTPUT',
-                            'STOCK', 'ASSETS', 'MERGER', 'SALES' 'FUNDED', 'RESERVES',
-                            'READJUSTMENT', 'CONTROL', 'EARNINGS', 'BALANCE', 'SERIAL', 'RETIRED',
+                            'STOCK', 'ASSETS', 'SALES' 'FUNDED', 'RESERVES',
+                            'READJUSTMENT', 'EARNINGS', 'BALANCE', 'SERIAL', 'RETIRED',
                             'INTERESTS', 'CREDITORS', 'BONDED', 'PROPOSED', 'LATEST', 'RATING',
                             'ISSUE', 'COMMITTEE', 'DISTRIBUTION', 'CONTINUED', 'DIRECTORS',
                             'CONTROLLED', 'REGISTRAR', 'CAPITAL', 'LIQUIDATION', 'Continued']
 
     popular_words_short = ['NOTE', 'DEBT', 'FILM', 'BONDS', 'GROSS', 'PRICE', 'MEETING',
                            'PROTECTIVE', 'SALE', 'PRODUCED', 'FUNDS', 'PLANTS', 'COMPANIES',
-                           'NULL', 'CONTRACT', 'ETC', 'YEARS']
+                           'NULL', 'CONTRACT', 'ETC', 'YEARS', 'CONTROL', 'MERGER']
 
     popular_words_sensitive = ['NET', 'RANGE', 'ACTION', 'SHEET', 'SHARES', 'ACCOUNT', 'DIRT',
                                'PLAN', 'SOLD', 'COMPANIES']
@@ -162,12 +167,14 @@ def beginning_end_line_filter(captured_words, string_continuous):
     if len(captured_words) > 1:
         if len(strip_punctuation(captured_words[-1][0])) > 0:
             if check_against_popular(strip_punctuation(captured_words[-1][0]), captured_words, string_continuous):
-                # print('PITCH end_word:', captured_words)
+                # print('beginning_end_line_filter')
+                # print(captured_words)
                 captured_words = []
 
         else:
             if check_against_popular(strip_punctuation(captured_words[-2][0]), captured_words, string_continuous):
-                # print('PITCH end_word:', captured_words)
+                # print('beginning_end_line_filter')
+                # print(captured_words)
                 captured_words = []
 
     return captured_words
@@ -179,7 +186,8 @@ def as_of_search(captured_words, string_continuous):
     regex00 = r'.*as.*of.*'
     regex01 = r'.*yea.*en.*'
     if re.match(regex00, string_continuous.lower()) or re.match(regex01, string_continuous.lower()):
-        # print('PITCH as_of:', captured_string)
+        # print('as_of_search')
+        # print(captured_words)
         captured_words = []
 
     return captured_words
@@ -208,6 +216,8 @@ def is_management_bonded(captured_words, string_continuous):
     if (management_distance <= 5 or bonded_distance <=5 or agent_distance <= 2
         or balance_distance <= 2 or pro_forma_distance <= 1):
 
+        # print('is_management_bonded')
+        # print(captured_words)
         captured_words = []
 
     return captured_words

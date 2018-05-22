@@ -146,10 +146,10 @@ class ImageCropper(object):
         return (cropped_array, page_number_array)
 
     def trim_sides(self):
-        ''''''
+        """"""
 
         def build_array(array):
-            ''''''
+            """"""
 
             rolling_mean_vertical_array = ImageColumnCropOperators.convert_rolling_mean(array, 0, 10, 0)
 
@@ -194,7 +194,7 @@ class ImageCropper(object):
             return (rolling_mean_vertical_array, array_var_list)
 
         def descending_continuity(input_data, run_type):
-            ''''''
+            """"""
 
             rolling_mean_vertical_array = input_data[0]
             array_var_list = input_data[1]

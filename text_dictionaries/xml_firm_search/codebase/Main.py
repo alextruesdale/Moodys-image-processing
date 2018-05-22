@@ -18,7 +18,7 @@ def main():
         """Construct list of file paths for operation."""
 
         file_dict = {int('19' + str(year)): [
-                     '../../text_output/pickle_objects/full_objects/Industrials_19{}_dictionary.file'.format(year),
+                     '../../text_output/pickle_objects/full_objects_words/Industrials_19{}_dictionary.file'.format(year),
                      '../../text_output/pickle_objects/firm_location_objects/Industrials_19{}_firms.file'.format(year),
                      str(year)] for year in range(lower_bound, upper_bound)}
 
@@ -29,7 +29,7 @@ def main():
     time_elapsed = time.time()
 
     # try:
-    file_dict = construct_paths(20, 30)
+    file_dict = construct_paths(29, 30)
     for file_path_list in file_dict.values():
         in_file = file_path_list[0]
         firms_out_file = file_path_list[1]

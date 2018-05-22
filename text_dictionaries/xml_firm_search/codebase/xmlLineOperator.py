@@ -6,6 +6,7 @@ class xmlLineOperator(object):
 
     def __init__(self, index, line, page_data, search_key_data, continuation):
 
+        self.page = page_data.page
         self.index = index
         self.line = line[0]
         self.word_list = line[1]
@@ -88,19 +89,29 @@ class xmlLineOperator(object):
     def line_test_indented_columns(self, key):
         """Categorise words in line for two column sheets."""
 
+        def line_test_operator_trigger():
+            """Compartmentalised function to avoid repetition."""
+
+            captured_words = []
+            company_name_found = False
+            line_test_data = self.line_test_operator(captured_words, company_name_found)
+            return line_test_data
+
         captured_words = []
         company_name_found = False
-        offset_list = [.012, .025]
+        offset_list = [.01, .6]
 
         word_zero_left = self.word_list[0][4]
         word_zero = self.word_list[0][0]
 
         if key == 'center':
+            word_limit_line = 5
             if self.index == 0:
                 column_start = self.page_left
             elif self.index == 1:
                 column_start = self.left_column_start
         elif key == 'thirds':
+            word_limit_line = 2
             if self.index == 0:
                 column_start = self.page_left
             elif self.index == 1:
@@ -109,12 +120,21 @@ class xmlLineOperator(object):
                 column_start = self.third_second_start
 
         if (column_start + offset_list[0] < word_zero_left < column_start + offset_list[1] and
-            len(self.word_list) > 5 and xmlWO.capital_search(word_zero) and
-            xmlWO.check_against_popular(xmlWO.strip_punctuation(word_zero), self.word_list, '') is False):
+            len(self.word_list) > word_limit_line and xmlWO.capital_search(word_zero)):
 
-            line_test_data = self.line_test_operator(captured_words, company_name_found)
-            captured_words = line_test_data[0]
-            company_name_found = line_test_data[1]
+            if xmlWO.identify_company_extensions(self.line_test_operator(captured_words, company_name_found)[0]) is True:
+                line_test_data = line_test_operator_trigger()
+                captured_words = line_test_data[0]
+                company_name_found = line_test_data[1]
+
+            else:
+                captured_words = []
+                company_name_found = False
+
+                if xmlWO.check_against_popular(xmlWO.strip_punctuation(word_zero), self.word_list, '') is False:
+                    line_test_data = line_test_operator_trigger()
+                    captured_words = line_test_data[0]
+                    company_name_found = line_test_data[1]
 
         return (captured_words, company_name_found)
 

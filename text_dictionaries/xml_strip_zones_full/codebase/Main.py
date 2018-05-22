@@ -4,11 +4,7 @@ import sys
 import time
 import datetime
 import pickle
-import logging
 import xmlStripper
-
-logging.basicConfig(filename='RuntimeErrors.log', filemode='w', level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 def main():
     """Top-level project Main function."""
@@ -49,9 +45,6 @@ def main():
 
         with open(pickle_out_file, 'wb') as file_out:
             pickle.dump(pickle_data, file_out, pickle.HIGHEST_PROTOCOL)
-
-    # except Exception as e:
-    #     logger.error('Error Message: ' + str(e), exc_info=True)
 
     current_job_time = time.time() - time_elapsed
     elapsed_time = round(time.time() - start_time[0], 2)

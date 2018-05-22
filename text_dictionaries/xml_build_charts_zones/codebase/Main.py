@@ -8,7 +8,7 @@ import logging
 import xmlPlottingParent
 import xmlStaticOperators
 
-sys.path.append('../../text_operations_xml_firm_search/codebase')
+sys.path.append('../../xml_firm_search/codebase')
 import xmlPageData
 
 logging.basicConfig(filename='RuntimeErrors.log', filemode='w', level=logging.DEBUG)
@@ -57,7 +57,7 @@ def main():
         page_data_dictionary = manual_data_dictionary[0]
         xmlStaticOperators.clear_destination(charts_out_file)
         xmlPlottingParent.xmlPlottingParent(year, charts_out_file, manual_zones_dictionary,
-                                            page_data_dictionary)
+                                            page_data_dictionary, False)
 
     # except Exception as e:
     #     logger.error('Error Message: ' + str(e), exc_info=True)

@@ -8,12 +8,13 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 class xmlPlottingParent(object):
 
-    def __init__(self, year, charts_out_file, manual_zones_dictionary, page_data_dictionary):
+    def __init__(self, year, charts_out_file, manual_zones_dictionary, page_data_dictionary, manual_operate_key_overwrite):
 
         self.year = '19' + year
         self.out_file = charts_out_file
         self.manual_zones_dictionary = manual_zones_dictionary[0]
         self.page_data = page_data_dictionary
+        self.manual_operate_key_overwrite = manual_operate_key_overwrite
 
         self.create_chart_wrapper()
 
@@ -53,7 +54,7 @@ class xmlPlottingParent(object):
             for i, (page, data) in enumerate(self.manual_zones_dictionary.items()):
                 manual_operate_key = xmlPlottingParent.manual_begin_end(self.year, i)
 
-                if manual_operate_key:
+                if manual_operate_key or self.manual_operate_key_overwrite:
                     if page in self.page_data.keys():
                         xmlPlotPage.xmlPlotPage(page, data, self.page_data[page])
 
