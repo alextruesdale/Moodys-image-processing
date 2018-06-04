@@ -35,8 +35,5 @@ class ImageSaver(object):
             os.makedirs(save_folder)
 
         # Save full image.
-        Image.fromarray(self.output_image).save(os.path.join(save_folder,
-                                                             (os.path.basename(self.file)[:-4] +
-                                                              '_full_image' + '.tif')))
-
+        Image.fromarray(self.output_image).save(os.path.join(save_folder, (os.path.basename(self.file)[:-4] + '.tif')))
         return save_folder

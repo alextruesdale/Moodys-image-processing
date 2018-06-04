@@ -4,6 +4,8 @@ import statistics
 import ImageColumnCropOperators
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from PIL import Image
 
 pd.options.mode.chained_assignment = None
 
@@ -21,91 +23,33 @@ class ImageCropper(object):
     def __init__(self, rotated_image):
 
         self.final_rotate = rotated_image.final_rotate
-        self.luminance_img = self.convert_image_luminance()
-        self.cropped_array = self.rotate_crop()
+        self.luminance_img = ImageColumnCropOperators.convert_image_luminance(self.final_rotate)
+        self.cropped_array = self.rotate_crop_refine()
         self.final_cropped_array = self.trim_sides()
 
-    def convert_image_luminance(self):
-        """Convert rotated image to luminance array."""
+    def rotate_crop_refine(self):
+        """Loop to identify crop points; examines image vertically, rotates 90°, repeats."""
 
-        luminance_img = np.asarray((self.final_rotate).convert('L'))
-        return luminance_img
-
-    def rotate_crop(self):
-        """Define crop points and perform cropping."""
-
-        def create_rolling_mean(array, axis):
-            """Convert array to pd DataFrame; take rolling mean of avgs."""
-
-            # Take column average pixel density.
-            axis_avgs = list((array.mean(axis=axis)) / 255)
-            axis_df = pd.DataFrame(axis_avgs, columns=['values'])
-            rolling_mean = axis_df.rolling(20).mean()
-
-            return rolling_mean
-
-        def split_array(split_val):
-            """Crop array to only show edges of image (x-pixels from left & right)."""
-
-            split1 = rolling_mean.iloc[: split_val]
-            split2 = rolling_mean.iloc[-(split_val) :]
-            split_list = [split1, split2]
-
-            return split_list
-
-        crop_pts = []
-
-        rolling_mean = create_rolling_mean(self.luminance_img, 0)
-
-        # Check edges for white bleed (non-black space)
-        white_score = .6
-        split_val = 100
-        split_list = split_array(split_val)
-        for split_range in split_list:
-            white_points = list(split_range.index[split_range['values'] > white_score])
-
-            if len(white_points) > 0:
-                if max(white_points) < (int(len(rolling_mean)) / 2):
-                    white_range = int(min(white_points))
-                elif max(white_points) > (int(len(rolling_mean)) / 2):
-                    white_range = int(max(white_points))
-
-                crop_pts.append(white_range)
-
-        offset = 30
-        if len(crop_pts) == 1:
-            if crop_pts[0] < (int(len(rolling_mean)) / 2):
-                edge_trimmed_array = self.luminance_img[:, crop_pts[0] + offset:]
-            elif crop_pts[0] > (int(len(rolling_mean)) / 2):
-                edge_trimmed_array = self.luminance_img[:, :crop_pts[0] - offset]
-
-        elif len(crop_pts) == 2:
-            edge_trimmed_array = self.luminance_img[:, crop_pts[0] + offset:crop_pts[1] - offset]
-
-        else:
-            edge_trimmed_array = self.luminance_img[:, :]
-
-        # Loop to identify crop points; examines image vertically, rotates 90°, repeats.
         crop_pts = []
         for index in range(0, 2):
 
             # Rotate 90° for second treatment.
             if index == 1:
-                edge_trimmed_array = np.rot90(edge_trimmed_array, k=3)
+                self.luminance_img = np.rot90(self.luminance_img, k = 3)
 
-            rolling_mean = create_rolling_mean(edge_trimmed_array, 1)
+            rolling_mean = ImageColumnCropOperators.convert_rolling_mean(self.luminance_img, 1, 20, 0)
 
-            # Take the median dimension value of range of values with 'whiteness' greater than .85.
-            crop_pts_iteration = 0
-            white_score = .70
+            # Take the median dimension value of range of values with 'whiteness' greater than .65.
+            white_score = .65
             split_val = 300
-            split_list = split_array(split_val)
+            split_list = ImageColumnCropOperators.split_array(rolling_mean, split_val)
+            crop_pts_iteration = 0
             while crop_pts_iteration < 2:
                 for split_range in split_list:
                     white_points = list(split_range.index[split_range['values'] > white_score])
 
                     if len(white_points) > 0:
-                        if len(white_points) < 50:
+                        if len(white_points) < 350:
                             if max(white_points) < (int(len(rolling_mean)) / 2):
                                 white_range = int(min(white_points))
                             elif max(white_points) > (int(len(rolling_mean)) / 2):
@@ -125,7 +69,7 @@ class ImageCropper(object):
                         else:
                             white_score -= .02
 
-                        split_list = split_array(split_val)
+                        split_list = ImageColumnCropOperators.split_array(rolling_mean, split_val)
                         if crop_pts_iteration in [0, 2]:
                             break
                         elif crop_pts_iteration == 1:
@@ -133,14 +77,14 @@ class ImageCropper(object):
                             break
 
         # Rotate image back to upright; crop image on 'white_range' values.
-        edge_trimmed_array = np.rot90(edge_trimmed_array, k=1)
+        edge_trimmed_array = np.rot90(self.luminance_img, k = 1)
         cropped_array = edge_trimmed_array[crop_pts[0] : crop_pts[1],
                                            crop_pts[2] : crop_pts[3]]
 
         return cropped_array
 
     def trim_sides(self):
-        """Trim extra white space from edges of page text. Standardise images."""
+        """Trim extra white space from edges of page text; standardise images."""
 
         def build_array(array):
             """
@@ -148,14 +92,9 @@ class ImageCropper(object):
             This indicates approach of the edge of the page text.
             """
 
-            rolling_mean_vertical_array = ImageColumnCropOperators.convert_rolling_mean(array, 0,
-                                                                                        10, 0)
-
+            rolling_mean_vertical_array = ImageColumnCropOperators.convert_rolling_mean(array, 0, 10, 0)
             split_value = int(len(rolling_mean_vertical_array) / 2)
-            vertical_array_split1 = rolling_mean_vertical_array.iloc[:split_value]
-            vertical_array_split2 = rolling_mean_vertical_array.iloc[-split_value:]
-
-            split_list = [vertical_array_split1, vertical_array_split2]
+            split_list = ImageColumnCropOperators.split_array(rolling_mean_vertical_array, split_value)
 
             iteration = 1
             array_var_list = []
@@ -209,27 +148,27 @@ class ImageCropper(object):
                     for distance_list in array:
                         if distance_list[2] == 1 and distance_list[3] == 1:
                             continuity += -(distance_list[1])
-                            if continuity >= .025:
+                            if continuity >= .013:
                                 break
                         else:
                             continuity = 0
 
-                if run_type == 'second_pass':
-                    for distance_list in array:
-                        if distance_list[2] == 1 and distance_list[3] == 1:
-                            continuity += -(distance_list[1])
-                            if continuity >= .04:
-                                break
-                        else:
-                            continuity = 0
+                # if run_type == 'second_pass':
+                #     for distance_list in array:
+                #         if distance_list[2] == 1 and distance_list[3] == 1:
+                #             continuity += -(distance_list[1])
+                #             if continuity >= .04:
+                #                 break
+                #         else:
+                #             continuity = 0
 
                 if iteration == 1:
-                    if int(distance_list[0]) < 45:
+                    if int(distance_list[0]) <= 45:
                         crop_points_inner.append(0)
                     else:
                         crop_points_inner.append(int(distance_list[0]) - 45)
                 elif iteration == 2:
-                    if len(rolling_mean_vertical_array) - int(distance_list[0]) < 45:
+                    if len(rolling_mean_vertical_array) - int(distance_list[0]) <= 45:
                         crop_points_inner.append(len(rolling_mean_vertical_array))
                     else:
                         crop_points_inner.append(int(distance_list[0]) + 45)
@@ -238,8 +177,7 @@ class ImageCropper(object):
             return crop_points_inner
 
         crop_points = []
-
-        array_list = [self.cropped_array, np.rot90(self.cropped_array, k=1)]
+        array_list = [self.cropped_array, np.rot90(self.cropped_array, k = 1)]
         for array in array_list:
             array_data = build_array(array)
             array_crop_pts = descending_continuity(array_data, 'original')
@@ -250,22 +188,25 @@ class ImageCropper(object):
         trimmed_image = self.cropped_array[crop_points[2] : crop_points[3],
                                            crop_points[0] : crop_points[1]]
 
-        # Account for incomplete trimming on darker images.
-        array_data = build_array(trimmed_image)
-        array_crop_pts = descending_continuity(array_data, 'second_pass')
+        # Image.fromarray(trimmed_image).show()
 
-        if array_crop_pts[0] > 15:
-            if array_crop_pts[0] > 100:
-                array_crop_pts[0] = 100
-            crop_points[0] = crop_points[0] + array_crop_pts[0]
-        elif (abs(array_crop_pts[1] - crop_points[1]) > 15 and
-              abs(array_crop_pts[1] - crop_points[1]) < 100):
+        # # Account for incomplete trimming on darker images.
+        # array_data = build_array(trimmed_image)
+        # array_crop_pts = descending_continuity(array_data, 'second_pass')
+        #
+        # if array_crop_pts[0] > 15:
+        #     if array_crop_pts[0] > 100:
+        #         array_crop_pts[0] = 100
+        #     crop_points[0] = crop_points[0] + array_crop_pts[0]
+        # elif (abs(array_crop_pts[1] - crop_points[1]) > 15 and
+        #       abs(array_crop_pts[1] - crop_points[1]) < 100):
+        #
+        #     difference = abs(array_crop_pts[1] - crop_points[1])
+        #     if difference > 20:
+        #         difference = 20
+        #     crop_points[1] = crop_points[1] - difference
+        #
+        # trimmed_image_out = self.cropped_array[crop_points[2] : crop_points[3],
+        #                                        crop_points[0] : crop_points[1]]
 
-            difference = abs(array_crop_pts[1] - crop_points[1])
-            if difference > 20:
-                difference = 20
-            crop_points[1] = crop_points[1] - difference
-
-        trimmed_image_out = self.cropped_array[crop_points[2] : crop_points[3],
-                                               crop_points[0] : crop_points[1]]
-        return trimmed_image_out
+        return trimmed_image

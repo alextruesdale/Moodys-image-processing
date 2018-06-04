@@ -12,9 +12,17 @@ def read_files(exin, pathname):
     """Walk through subdirectories and build list of all .tif files"""
 
     files = []
-    exin = 'exclude'
-    pathname = 'output'
     # Searches subdirectories within current directory for all .tif files.
+
+    for path, dirnames, filenames in os.walk(os.getcwd()):
+        for filename in filenames:
+            if exin == 'include':
+                if pathname in path:
+                    file = os.path.join(path, filename)
+                    if 'column' in file:
+                        print(file)
+                        os.remove(file)
+
     for path, dirnames, filenames in os.walk(os.getcwd()):
         for filename in filenames:
             if exin == 'exclude':
@@ -22,38 +30,11 @@ def read_files(exin, pathname):
                     if filename.endswith('.tif'):
                         file = os.path.join(path, filename)
                         files.append(file)
-            else:
+            elif exin == 'include':
                 if pathname in path:
-                    if filename.endswith('.tif'):
+                    if filename.endswith('.tif') and 'column' not in filename:
                         file = os.path.join(path, filename)
                         files.append(file)
 
     files = sorted(files)
-    return files
-
-### Create Final Directories
-
-def final_directories():
-    """Create final directories in each subdirectory of output directory"""
-
-    # Define and create output directory for sort images.
-    output_directory = (os.path.join(os.getcwd(), 'output'))
-
-    if not os.path.exists(output_directory):
-        os.mkdir(output_directory)
-    else:
-        try:
-            shutil.rmtree(output_directory)
-        except:
-            shutil.rmtree(output_directory)
-
-        os.mkdir(output_directory)
-
-def file_read_operate(exin, pathname):
-    """Aggregate function triggering read_files & final_directories"""
-
-    files = read_files(exin, pathname)
-    final_directories()
-
-    # Return list of file paths
     return files

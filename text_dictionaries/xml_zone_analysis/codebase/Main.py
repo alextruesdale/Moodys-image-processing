@@ -29,7 +29,7 @@ def main():
     decade_fullwidth_ideal_table_count = 0
     table_keys_insgesammt = Counter()
 
-    file_dict = construct_paths(20, 21)
+    file_dict = construct_paths(21, 23)
     for file_path_list in file_dict.values():
         data_dictionary = file_path_list[0]
         zones_dictionary = file_path_list[1]

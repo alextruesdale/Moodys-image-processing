@@ -16,14 +16,11 @@ def convert_image_luminance(image):
     luminance_img = np.asarray((image).convert('L'))
     return luminance_img
 
-def split_array(rolling_mean, split_val):
+def crop_array(rolling_mean, edge_val):
     """Crop array to only show edges of image (x-pixels from left & right)."""
 
-    split1 = rolling_mean.iloc[: split_val]
-    split2 = rolling_mean.iloc[-(split_val) :]
-    split_list = [split1, split2]
-
-    return split_list
+    crop_array = rolling_mean.iloc[edge_val : -edge_val]
+    return crop_array
 
 def convert_rolling_mean(array, axis, interval, offset):
     """Take rolling mean of image array."""

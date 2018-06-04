@@ -32,6 +32,7 @@ class xmlColumnChart(object):
         word_count_shift2.columns = ['values']
         word_count_shift3 = pd.DataFrame(word_count['values_binary'].shift(-3))
         word_count_shift3.columns = ['values']
+        line_item_path_df = pd.DataFrame([value[0] for value in self.section_dictionary.values()])
 
         word_count_shift1['values'].fillna(2, inplace=True)
         word_count_shift2['values'].fillna(2, inplace=True)
@@ -43,7 +44,8 @@ class xmlColumnChart(object):
 
         word_count.rename(columns={'values': 'index'}, inplace=True)
         word_count['index'] = word_count.index
-        word_count_list_out = word_count.values.tolist()
+        word_count_merged = word_count.merge(line_item_path_df, left_index=True, right_index=True, how='inner')
+        word_count_list_out = word_count_merged.values.tolist()
 
         return word_count_list_out
 
@@ -70,13 +72,13 @@ class xmlColumnChart(object):
                 list_item[3] == 1 and list_item[4] == 1 and key is False):
 
                 key = True
-                section_list.append([list_item[0] + .5, self.key, key])
+                section_list.append([list_item[0] + .5, self.key, key, list_item[-1]])
 
             elif (continuity > 5 and list_item[1] == 1 and list_item[2] == 0 and
                   list_item[3] == 0 and list_item[4] == 0 and key is True):
 
                 key = False
-                section_list.append([list_item[0] + .5, self.key, key])
+                section_list.append([list_item[0] + .5, self.key, key, list_item[-1]])
 
         if len(section_list) > 0:
             if section_list[0][2] == True:
@@ -88,6 +90,7 @@ class xmlColumnChart(object):
         for section in section_list:
             section_list_out.append(section)
 
+        print(section_list_out)
         return section_list_out
 
     def chart_sheets(self):

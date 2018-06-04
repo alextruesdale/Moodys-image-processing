@@ -29,7 +29,7 @@ def main():
     time_elapsed = time.time()
 
     # try:
-    file_dict = construct_paths(29, 30)
+    file_dict = construct_paths(20, 30)
     for file_path_list in file_dict.values():
         in_file = file_path_list[0]
         firms_out_file = file_path_list[1]
@@ -48,18 +48,18 @@ def main():
             xml_data = pickle.load(object_in)
 
         xml_sheet = xmlSheetSearch.xmlSheetSearch(in_file, xml_data)
-        firm_data = xml_sheet.location_data
-        outfiles.update({firms_out_file: firm_data})
-
-        page_data_outfile = '../../text_output/pickle_objects/page_data_objects/Industrials_19{}_data_dictionary.file'.format(year)
-        page_data_dictionary = xml_sheet.page_data_dictionary
-        page_line_data = xml_sheet.line_data
-        outfiles.update({page_data_outfile: [page_data_dictionary, page_line_data]})
-
-        for out_file, data in outfiles.items():
-            xmlStaticOperators.clear_destination(out_file)
-            with open(out_file, 'wb') as file_out:
-                pickle.dump(data, file_out, pickle.HIGHEST_PROTOCOL)
+        # firm_data = xml_sheet.location_data
+        # outfiles.update({firms_out_file: firm_data})
+        #
+        # page_data_outfile = '../../text_output/pickle_objects/page_data_objects/Industrials_19{}_data_dictionary.file'.format(year)
+        # page_data_dictionary = xml_sheet.page_data_dictionary
+        # page_line_data = xml_sheet.line_data
+        # outfiles.update({page_data_outfile: [page_data_dictionary, page_line_data]})
+        #
+        # for out_file, data in outfiles.items():
+        #     xmlStaticOperators.clear_destination(out_file)
+        #     with open(out_file, 'wb') as file_out:
+        #         pickle.dump(data, file_out, pickle.HIGHEST_PROTOCOL)
 
     # except Exception as e:
     #     logger.error('Error Message: ' + str(e), exc_info=True)

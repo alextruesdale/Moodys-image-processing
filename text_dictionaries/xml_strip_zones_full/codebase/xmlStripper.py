@@ -96,9 +96,11 @@ class xmlStripper(object):
                             t = float('{:.5f}'.format(1-((int(zone.get('t')) * 400) / 1440)/source_data[1][2][1]))
                             b = float('{:.5f}'.format(1-((int(zone.get('b')) * 400) / 1440)/source_data[1][2][1]))
 
-                            if zone.tag == 'tableZone':
-                                zone_data_dictionary[file_name].append([zone.tag,t,r,b,l,zone])
-                            else:
-                                zone_data_dictionary[file_name].append([zone.tag,t,r,b,l])
-                            
+                            # if zone.tag == 'tableZone':
+                            #     zone_data_dictionary[file_name].append([zone.tag,t,r,b,l,zone])
+                            # else:
+                            #     zone_data_dictionary[file_name].append([zone.tag,t,r,b,l])
+
+                            zone_data_dictionary[file_name].append([zone.tag,t,r,b,l,zone])
+
         return (zone_data_dictionary, dictionary_length)

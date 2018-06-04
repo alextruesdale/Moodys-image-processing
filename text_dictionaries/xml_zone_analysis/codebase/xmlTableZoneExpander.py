@@ -12,8 +12,6 @@ class xmlTableZoneExpander(object):
         self.columns = columns
         self.page_data = page_data
 
-        print(self.page)
-
         self.output_directory_data = output_directory_data
         self.zone_list = zone_list
         self.page_zone_data = page_zone_data
@@ -22,18 +20,19 @@ class xmlTableZoneExpander(object):
         self.working_zones = self.column_zones[1]
         self.column_width = self.exclude_titles()
 
-
         self.column_bounds = self.identify_bounding_neighbours()
         self.top_bound = self.column_bounds[0]
         self.bottom_bound = self.column_bounds[1]
         self.identify_neighbours()
         self.identify_incomplete_text_zones()
         self.pixel_coordinates = self.zone_absorption()
-        self.twip_coordinates = self.convert_twips()
         self.overwrite_original_table_coordinates()
 
-        print(self.pixel_coordinates)
-        print(self.twip_coordinates)
+        if len(self.working_zones) > 1:
+            self.convert_pixels()
+            self.convert_twips()
+        else:
+            print('single zone:', self.page)
 
     def identify_table_column(self):
         """ID which column the table object is in."""
@@ -106,7 +105,11 @@ class xmlTableZoneExpander(object):
                 dimension_index = 2
 
             for member in members:
-                if member[0] != 'tableZone' and abs(member[2] - member[4]) > .2:
+                if member[0] != 'tableZone' and abs(member[2] - member[4]) > .13:
+                    edge_list.append(member[dimension_index])
+
+            if not edge_list:
+                if abs(member[2] - member[4]) > .13:
                     edge_list.append(member[dimension_index])
 
             if key == 'left':
@@ -232,8 +235,7 @@ class xmlTableZoneExpander(object):
         right_list = []
         bottom_list = []
         left_list = []
-        pixel_coordinates_in = {}
-        pixel_coordinates_out = {}
+        pixel_coordinates = {}
 
         for zone in self.working_zones:
             top_list.append(zone[1])
@@ -241,28 +243,46 @@ class xmlTableZoneExpander(object):
             bottom_list.append(zone[3])
             left_list.append(zone[4])
 
+        pixel_coordinates['t_pixel'] = max(top_list)
+        pixel_coordinates['r_pixel'] = max(right_list)
+        pixel_coordinates['b_pixel'] = min(bottom_list)
+        pixel_coordinates['l_pixel'] = min(left_list)
+
+        return pixel_coordinates
+
+    def overwrite_original_table_coordinates(self):
+        """Replace original table coordinates with new ones."""
+
+        for zone in self.page_zone_data:
+            if zone is self.zone_list:
+                zone[1] = self.pixel_coordinates['t_pixel']
+                zone[2] = self.pixel_coordinates['r_pixel']
+                zone[3] = self.pixel_coordinates['b_pixel']
+                zone[4] = self.pixel_coordinates['l_pixel']
+                new_width = abs(zone[2] - zone[4])
+                zone.append('modifiedZone')
+
+        return new_width
+
+    def convert_pixels(self):
+        """Convert tableZone coordinates to output-able pixels."""
+
         width = self.page_data.page_dimensions[0]
         height = self.page_data.page_dimensions[1]
 
-        pixel_coordinates_in['t_pixel'] = max(top_list)
-        pixel_coordinates_in['r_pixel'] = max(right_list)
-        pixel_coordinates_in['b_pixel'] = min(bottom_list)
-        pixel_coordinates_in['l_pixel'] = min(left_list)
-
-        pixel_coordinates_out['t_pixel'] = max(top_list) * height
-        pixel_coordinates_out['r_pixel'] = max(right_list) * width
-        pixel_coordinates_out['b_pixel'] = min(bottom_list) * height
-        pixel_coordinates_out['l_pixel'] = min(left_list) * width
+        pixel_coordinates_out = {}
+        pixel_coordinates_out['t_pixel'] = self.pixel_coordinates['t_pixel'] * height
+        pixel_coordinates_out['r_pixel'] = self.pixel_coordinates['r_pixel'] * width
+        pixel_coordinates_out['b_pixel'] = self.pixel_coordinates['b_pixel'] * height
+        pixel_coordinates_out['l_pixel'] = self.pixel_coordinates['l_pixel'] * width
 
         pixel_coordinates_series = pd.Series(pixel_coordinates_out, index = pixel_coordinates_out.keys())
         xmlStaticOperators.data_to_csv(pixel_coordinates_series, False, False,
                                        self.output_directory_data[0], self.output_directory_data[1],
                                        self.output_directory_data[2], False, True, 'coordinates_pixel')
 
-        return pixel_coordinates_in
-
     def convert_twips(self):
-        """Convert tableZone coordinates back to Twips."""
+        """Convert tableZone coordinates back to twips."""
 
         twip_coordinates = {}
         coordinates_twip = []
@@ -285,16 +305,3 @@ class xmlTableZoneExpander(object):
         xmlStaticOperators.data_to_csv(twip_coordinates_series, False, False,
                                        self.output_directory_data[0], self.output_directory_data[1],
                                        self.output_directory_data[2], False, True, 'coordinates_twip')
-
-        return twip_coordinates
-
-    def overwrite_original_table_coordinates(self):
-        """Replace original table coordinates with new ones."""
-
-        for zone in self.page_zone_data:
-            if zone is self.zone_list:
-                zone[1] = self.pixel_coordinates['t_pixel']
-                zone[2] = self.pixel_coordinates['r_pixel']
-                zone[3] = self.pixel_coordinates['b_pixel']
-                zone[4] = self.pixel_coordinates['l_pixel']
-                zone.append('modifiedZone')

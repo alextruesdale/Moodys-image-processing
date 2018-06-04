@@ -114,11 +114,11 @@ class xmlPageOperator(object):
 
         words_excluded = [word for index, word in word_dict.items() if index not in registered_indeces]
         line_data_dict[self.page].extend((lines_dict, words_excluded))
-        
+
         return (lines_dict, words_excluded, line_data_dict)
 
     def instantiate_columns(self):
-        """Loop over devided columns and operate."""
+        """Loop over divided columns and operate."""
 
         page_break_dictionary_insgesamt = {}
         for index, dictionary in self.lines_dict.items():
