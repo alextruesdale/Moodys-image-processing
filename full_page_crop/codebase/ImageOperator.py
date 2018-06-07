@@ -1,10 +1,13 @@
 """ImageOperator module called by Main function."""
 
-import RunTimeData
 from ImageRotater import ImageRotater
 from ImageCropper import ImageCropper
 from ImageSaver import ImageSaver
 from operator import itemgetter
+
+import sys
+sys.path.append('../../runtime_data/')
+import RunTimeData
 
 class ImageOperator(object):
 

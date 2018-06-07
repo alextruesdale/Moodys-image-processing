@@ -59,9 +59,9 @@ class xmlPlotPage(object):
                 colour = 'k'
                 linewidth = 1.0
                 linestyle = 'dotted'
-            elif zone_type == 'pictureZone':
-                colour = 'k'
-                linewidth = 2
+            elif zone_type == 'wordZone':
+                colour = 'g'
+                linewidth = 1
                 linestyle = 'solid'
 
             if not (zone[2] < self.page_data.page_left or zone[4] > self.page_data.page_right or

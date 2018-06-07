@@ -1,18 +1,15 @@
 """Top-level project Main function."""
 
 import sys
-import time
-import datetime
 import pickle
-import logging
 import xmlPlottingParent
 import xmlStaticOperators
 
-sys.path.append('../../text_operations_xml_firm_search/codebase')
+sys.path.append('../../xml_firm_search/codebase')
 import xmlPageData
 
-logging.basicConfig(filename='RuntimeErrors.log', filemode='w', level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+sys.path.append('../../../runtime_data/')
+import RunTimeData
 
 def main():
     """Top-level project Main function."""
@@ -28,26 +25,19 @@ def main():
 
         return file_dict
 
-    start_time = [time.time(), datetime.datetime.now()]
-    print('Start Time:', start_time[1].strftime("%H:%M:%S"))
-    time_elapsed = time.time()
+    starting_data = RunTimeData.starting_print_statement()
+    start_time = starting_data[0]
+    time_elapsed = starting_data[1]
 
     # try:
-    file_dict = construct_paths(28, 30)
+    file_dict = construct_paths(40, 42)
     for file_path_list in file_dict.values():
         data_dictionary = file_path_list[0]
         firms = file_path_list[1]
         charts_out_file = file_path_list[2]
         year = file_path_list[3]
 
-        if datetime.datetime.now().strftime("%H:%M:%S") != start_time[1].strftime("%H:%M:%S"):
-            current_job_time = time.time() - time_elapsed
-            print('Current Time:', datetime.datetime.now().strftime("%H:%M:%S"))
-            print('Previous Year Manual Duration:', round(current_job_time / 60, 2), 'minutes')
-
-        time_elapsed = time.time()
-        print('Active File:', charts_out_file)
-
+        time_elapsed = time_elapsed = RunTimeData.interim_print_statement(charts_out_file, start_time, time_elapsed)
         with open(firms, 'rb') as object_in:
             manual_firms = pickle.load(object_in)
 
@@ -64,11 +54,7 @@ def main():
     # except Exception as e:
     #     logger.error('Error Message: ' + str(e), exc_info=True)
 
-    current_job_time = time.time() - time_elapsed
-    elapsed_time = round(time.time() - start_time[0], 2)
-    print('Previous Year Manual Duration:', round(current_job_time / 60, 2), 'minutes')
-    print('Total Duration:', str(round(elapsed_time/60, 2)) + ' minutes')
-
+    RunTimeData.concluding_print_statement(start_time, time_elapsed)
 
 if __name__ == "__main__":
     main()

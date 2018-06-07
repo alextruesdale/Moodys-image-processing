@@ -1,35 +1,34 @@
 """Top-level project Main function."""
 
 import sys
-import time
-import logging
 import BuildAggregate
 import PreliminaryParsing
 import BuildDictionariesCaps
 
-logging.basicConfig(filename='RuntimeErrors.log', filemode='w', level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+sys.path.append('../../../runtime_data/')
+import RunTimeData
 
 run_type = sys.argv[1]
 def main(run_type):
     """Top-level project Main function."""
 
-    start_time = time.time()
+    starting_data = RunTimeData.starting_print_statement()
+    start_time = starting_data[0]
+    time_elapsed = starting_data[1]
 
-    try:
-        if run_type == 'build':
-            working_file = BuildAggregate.build_aggregate(30, 31)
-            highlevel_data = PreliminaryParsing.PreliminaryParsing(working_file)
+    if run_type == 'build':
+        build_data = BuildAggregate.build_aggregate(30, 31, start_time, time_elapsed)
+        working_file = build_data[0]
+        time_elapsed = build_data[1]
+        highlevel_data = PreliminaryParsing.PreliminaryParsing(working_file)
 
-        elif run_type == 'run':
-            uppercase_dictionaries = BuildDictionariesCaps.CapsDictionaries()
+    elif run_type == 'run':
+        time_elapsed = RunTimeData.interim_print_statement('running process: build capitals ditionaries.',
+                                                           start_time, time_elapsed)
 
-    except Exception as e:
-        logger.error('Error Message: ' + str(e), exc_info=True)
+        uppercase_dictionaries = BuildDictionariesCaps.CapsDictionaries()
 
-    elapsed_time = round(time.time() - start_time, 2)
-    print('Duration:', str(elapsed_time) + ' seconds')
-
+    RunTimeData.concluding_print_statement(start_time, time_elapsed)
 
 if __name__ == "__main__":
     main(run_type)

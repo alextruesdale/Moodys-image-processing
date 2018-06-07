@@ -26,9 +26,9 @@ class xmlSheetSearch(object):
         self.xml_column_chart_center = self.page_graphs[0]
         self.xml_column_chart_thirds = self.page_graphs[1]
 
-        # self.firm_line_data = self.identify_firms_lines_locations_on_page()
-        # self.location_data = self.firm_line_data[0]
-        # self.line_data = self.firm_line_data[1]
+        self.firm_line_data = self.identify_firms_lines_locations_on_page()
+        self.location_data = self.firm_line_data[0]
+        self.line_data = self.firm_line_data[1]
 
     def identify_year(self):
         """Extract year from file path."""
@@ -50,7 +50,9 @@ class xmlSheetSearch(object):
             '1926': [[-1, False], [270, True], [2665, False]],
             '1927': [[-1, False], [306, True], [3057, False]],
             '1928': [[-1, False], [348, True], [3425, False]],
-            '1929': [[-1, False], [391, True], [3485, False]]
+            '1929': [[-1, False], [391, True], [3485, False]],
+            '1940': [[-1, False], [387, True], [3581, False]],
+            '1941': [[-1, False], [330, True], [3466, False]],
         }
 
         difference_list = sorted([[item, page_index - item[0]] for item in

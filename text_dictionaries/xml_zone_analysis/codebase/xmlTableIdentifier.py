@@ -82,6 +82,29 @@ class xmlTableIdentifier(object):
 
         return (page_columns, column_width)
 
+    def define_content_height(self, page):
+        """Identify top of page content"""
+
+        column_top_dict = {}
+        column_bottom_dict = {}
+        line_data = self.line_data[page][0]
+        top_average = 0
+        bottom_average = 0
+        for index, column in line_data.items():
+            top_row = column[max(column)]
+            bottom_row = column[min(column)]
+
+            column_top = max([word[1] for word in top_row])
+            column_bottom = min([word[1] for word in bottom_row])
+            top_average += column_top
+            bottom_average += column_bottom
+            column_top_dict.update({index: column_top})
+            column_bottom_dict.update({index: column_bottom})
+
+        top_average = top_average / len(column_top_dict) + .005
+        bottom_average = bottom_average / len(column_bottom_dict) - .015
+        return (column_top_dict, column_bottom_dict, top_average, bottom_average)
+
     def identify_tables(self):
         """Identify tableZones from collective zone data; trigger stripping class."""
 
@@ -95,12 +118,15 @@ class xmlTableIdentifier(object):
             if manual_operate_key:
                 output_directory_data = self.create_page_directory(page)
                 page_column_data = self.define_column_width(page)
+                define_content_height = self.define_content_height(page)
                 columns = page_column_data[0]
                 column_width = page_column_data[1]
+                top_average = define_content_height[2]
+                bottom_average = define_content_height[3]
                 if columns > 1:
                     for zone in data:
+                        zone_width = zone[2] - zone[4]
                         if zone[0] == 'tableZone':
-                            zone_width = zone[2] - zone[4]
                             if column_width - .015 < zone_width < column_width + .03:
                                 manual_fullwidth_table_count += 1
                                 zone_element = zone[5]
@@ -112,14 +138,22 @@ class xmlTableIdentifier(object):
                                     for key in element_data.table_keys:
                                         table_keys_aggregate.append(key)
 
-                            elif zone_width < column_width:
-                                modified_page = xmlTableZoneExpander.xmlTableZoneExpander(page, self.page_data[page],
-                                                                                          columns, output_directory_data,
-                                                                                          zone, data)
+                        if (zone_width < column_width - .015 and zone[3] > bottom_average and
+                            (zone[1] < top_average or zone[3] < top_average) and
+                            (zone[0] == 'tableZone' or zone[0] == 'textZone')):
 
-                                page_data = self.page_data[page]
-                                modified_pages.update({page:[[page_data.page_dimensions[0],
-                                                              page_data.page_dimensions[1]],
-                                                              modified_page.page_zone_data]})
+                            if page in modified_pages.keys():
+                                data = modified_pages[page][1]
+                                if zone not in data:
+                                    continue
+
+                            modified_page = xmlTableZoneExpander.xmlTableZoneExpander(page, self.page_data[page],
+                                                                                      columns, output_directory_data,
+                                                                                      zone, data, define_content_height)
+
+                            page_data = self.page_data[page]
+                            modified_pages.update({page:[[page_data.page_dimensions[0],
+                                                          page_data.page_dimensions[1]],
+                                                          modified_page.page_zone_data]})
 
         return(manual_fullwidth_table_count, manual_fullwidth_ideal_table_count, table_keys_aggregate, modified_pages)

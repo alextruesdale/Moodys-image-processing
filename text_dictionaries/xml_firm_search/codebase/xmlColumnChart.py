@@ -90,7 +90,6 @@ class xmlColumnChart(object):
         for section in section_list:
             section_list_out.append(section)
 
-        print(section_list_out)
         return section_list_out
 
     def chart_sheets(self):

@@ -130,9 +130,9 @@ class xmlPageData(object):
         page_bounds_01 = identify_outliers(word_dict, page_bounds)
         page_bounds_02 = identify_outliers(word_dict, page_bounds_01)
         page_bounds_final = identify_outliers(word_dict, page_bounds_02)
-        operate = True
+        output = True
 
-        return (page_bounds_final, list_list, operate)
+        return (page_bounds_final, list_list, output)
 
     def page_data_define(self):
         """Identify all data necessary for plotting (bounds, center, etc.)."""

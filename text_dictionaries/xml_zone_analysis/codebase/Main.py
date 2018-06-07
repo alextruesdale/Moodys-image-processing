@@ -1,10 +1,12 @@
 """Top-level project Main function."""
 
-import time
-import datetime
 import xmlOverhead
 import xmlStaticOperators
 from collections import Counter
+
+import sys
+sys.path.append('../../../runtime_data/')
+import RunTimeData
 
 def main():
     """Top-level project Main function."""
@@ -21,15 +23,15 @@ def main():
 
         return file_dict
 
-    start_time = [time.time(), datetime.datetime.now()]
-    print('Start Time:', start_time[1].strftime("%H:%M:%S"))
-    time_elapsed = time.time()
+    starting_data = RunTimeData.starting_print_statement()
+    start_time = starting_data[0]
+    time_elapsed = starting_data[1]
 
     decade_fullwidth_table_count = 0
     decade_fullwidth_ideal_table_count = 0
     table_keys_insgesammt = Counter()
 
-    file_dict = construct_paths(21, 23)
+    file_dict = construct_paths(20, 21)
     for file_path_list in file_dict.values():
         data_dictionary = file_path_list[0]
         zones_dictionary = file_path_list[1]
@@ -37,14 +39,7 @@ def main():
         charts_out_path = file_path_list[3]
         year = file_path_list[4]
 
-        if datetime.datetime.now().strftime("%H:%M:%S") != start_time[1].strftime("%H:%M:%S"):
-            current_job_time = time.time() - time_elapsed
-            print('Current Time:', datetime.datetime.now().strftime("%H:%M:%S"))
-            print('Previous Year Manual Duration:', round(current_job_time / 60, 2), 'minutes')
-
-        time_elapsed = time.time()
-        print('Active File:', zones_dictionary)
-
+        time_elapsed = RunTimeData.interim_print_statement(data_out_path, start_time, time_elapsed)
         xml_year_data = xmlOverhead.xmlOverhead(data_dictionary, zones_dictionary,
                                                 data_out_path, charts_out_path, year)
 
@@ -63,11 +58,7 @@ def main():
             out_file.write(count_out)
             out_file.write('\n')
 
-    current_job_time = time.time() - time_elapsed
-    elapsed_time = round(time.time() - start_time[0], 2)
-    print('Previous Year Manual Duration:', round(current_job_time / 60, 2), 'minutes')
-    print('Total Duration:', str(round(elapsed_time / 60, 2)) + ' minutes')
-
+    RunTimeData.concluding_print_statement(start_time, time_elapsed)
 
 if __name__ == "__main__":
     main()

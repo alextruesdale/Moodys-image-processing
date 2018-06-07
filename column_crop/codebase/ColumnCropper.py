@@ -5,8 +5,11 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 import statistics
-import RunTimeData
 import ImageColumnCropOperators
+
+import sys
+sys.path.append('../../runtime_data/')
+import RunTimeData
 
 class ColumnCropper(object):
 

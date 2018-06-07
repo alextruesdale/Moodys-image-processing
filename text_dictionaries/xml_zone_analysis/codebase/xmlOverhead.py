@@ -2,6 +2,7 @@
 
 import sys
 import pickle
+import time
 import xmlStaticOperators
 import xmlTableIdentifier
 import xmlModifiedTablesPlot
@@ -36,6 +37,9 @@ class xmlOverhead(object):
     def read_pickle_files(self):
         """Read pickle files into memory."""
 
+        start_time = time.time()
+        print('reading file:', self.zones_dictionary)
+
         with open(self.zones_dictionary, 'rb') as object_in:
             manual_zones_dictionary = pickle.load(object_in)
 
@@ -45,6 +49,10 @@ class xmlOverhead(object):
         page_data = manual_data_dictionary[0]
         line_data = manual_data_dictionary[1]
         manual_zones_dictionary_input = manual_zones_dictionary[0]
+
+        time_elapsed = time.time() - start_time
+        print('file read:', self.zones_dictionary)
+        print('read time:', round(time_elapsed / 60, 2), 'minutes')
 
         return (page_data, line_data, manual_zones_dictionary_input)
 
@@ -73,5 +81,6 @@ class xmlOverhead(object):
     def instantiate_modified_tables_plotter(self):
         """Trigger xmlModifiedTablesPlot class."""
 
+        print('plotting charts...')
         xmlModifiedTablesPlot.xmlModifiedTablesPlot(self.year, self.charts_out_path,
                                                     self.modified_pages, self.page_data)

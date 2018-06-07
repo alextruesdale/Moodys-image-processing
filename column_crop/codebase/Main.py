@@ -5,6 +5,10 @@ import ImageReader
 import RunTimeData
 import ColumnWindowFinder
 
+import sys
+sys.path.append('../../runtime_data/')
+import RunTimeData
+
 def main():
     """Read file directory images and the run the Image Operator aggregate function."""
 
