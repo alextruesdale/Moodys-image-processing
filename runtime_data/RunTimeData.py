@@ -23,6 +23,20 @@ def interim_print_statement(file, start_time, time_elapsed):
     print('Active File:', file)
     return time_elapsed
 
+def read_pickle_start(in_file):
+    """Display read time data for pickle in-file reads."""
+
+    start_time = time.time()
+    print('Reading file:', in_file)
+    return start_time
+
+def read_pickle_end(start_time, in_file):
+    """Display read time data for pickle in-file reads."""
+
+    time_elapsed = time.time() - start_time
+    print('File read:', in_file)
+    print('Read time:', round(time_elapsed / 60, 2), 'minutes')
+
 def time_elapsed_placeholder(start_time):
     """Create placeholder for timestamps while searching for starting file."""
 

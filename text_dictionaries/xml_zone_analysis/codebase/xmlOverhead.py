@@ -10,6 +10,9 @@ import xmlModifiedTablesPlot
 sys.path.append('../../xml_firm_search/codebase')
 import xmlPageData
 
+sys.path.append('../../../runtime_data/')
+import RunTimeData
+
 class xmlOverhead(object):
 
     def __init__(self, data_dictionary, zones_dictionary, data_out_path, charts_out_path, year):
@@ -37,9 +40,7 @@ class xmlOverhead(object):
     def read_pickle_files(self):
         """Read pickle files into memory."""
 
-        start_time = time.time()
-        print('reading file:', self.zones_dictionary)
-
+        start_time = RunTimeData.read_pickle_start(self.zones_dictionary)
         with open(self.zones_dictionary, 'rb') as object_in:
             manual_zones_dictionary = pickle.load(object_in)
 
@@ -49,10 +50,7 @@ class xmlOverhead(object):
         page_data = manual_data_dictionary[0]
         line_data = manual_data_dictionary[1]
         manual_zones_dictionary_input = manual_zones_dictionary[0]
-
-        time_elapsed = time.time() - start_time
-        print('file read:', self.zones_dictionary)
-        print('read time:', round(time_elapsed / 60, 2), 'minutes')
+        RunTimeData.read_pickle_end(start_time, self.zones_dictionary)
 
         return (page_data, line_data, manual_zones_dictionary_input)
 

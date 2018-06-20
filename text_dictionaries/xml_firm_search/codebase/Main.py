@@ -25,7 +25,6 @@ def main():
     start_time = starting_data[0]
     time_elapsed = starting_data[1]
 
-    # try:
     file_dict = construct_paths(40, 42)
     for file_path_list in file_dict.values():
         in_file = file_path_list[0]

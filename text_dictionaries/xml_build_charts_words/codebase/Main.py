@@ -29,7 +29,6 @@ def main():
     start_time = starting_data[0]
     time_elapsed = starting_data[1]
 
-    # try:
     file_dict = construct_paths(40, 42)
     for file_path_list in file_dict.values():
         data_dictionary = file_path_list[0]
@@ -50,9 +49,6 @@ def main():
         xmlStaticOperators.clear_destination(charts_out_file)
         xmlPlottingParent.xmlPlottingParent(year, charts_out_file, page_data_dictionary,
                                             page_line_data, manual_firms)
-
-    # except Exception as e:
-    #     logger.error('Error Message: ' + str(e), exc_info=True)
 
     RunTimeData.concluding_print_statement(start_time, time_elapsed)
 

@@ -92,10 +92,10 @@ class xmlStripper(object):
                 if root.find('.//source').get('file').split('/')[-1] == source_data[0]:
                     for word in root.findall('.//wd'):
                         word.text = none_to_empty(word.text)
-                        l = float('{:.5f}'.format(((int(word.get('l')) * 400) / 1440)/source_data[1][2][0]))
-                        r = float('{:.5f}'.format(((int(word.get('r')) * 400) / 1440)/source_data[1][2][0]))
-                        t = float('{:.5f}'.format(1-((int(word.get('t')) * 400) / 1440)/source_data[1][2][1]))
-                        b = float('{:.5f}'.format(1-((int(word.get('b')) * 400) / 1440)/source_data[1][2][1]))
+                        l = float('{:.3f}'.format(((int(word.get('l')) * 400) / 1440)/source_data[1][2][0]))
+                        r = float('{:.3f}'.format(((int(word.get('r')) * 400) / 1440)/source_data[1][2][0]))
+                        t = float('{:.3f}'.format(1-((int(word.get('t')) * 400) / 1440)/source_data[1][2][1]))
+                        b = float('{:.3f}'.format(1-((int(word.get('b')) * 400) / 1440)/source_data[1][2][1]))
 
                         page_data_dictionary[file_name][1].append([word.text,t,r,b,l])
 

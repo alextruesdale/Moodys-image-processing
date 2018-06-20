@@ -51,8 +51,8 @@ class xmlSheetSearch(object):
             '1927': [[-1, False], [306, True], [3057, False]],
             '1928': [[-1, False], [348, True], [3425, False]],
             '1929': [[-1, False], [391, True], [3485, False]],
-            '1940': [[-1, False], [387, True], [3581, False]],
-            '1941': [[-1, False], [330, True], [3466, False]],
+            '1940': [[-1, False], [386, True], [3581, False]],
+            '1941': [[-1, False], [329, True], [3466, False]]
         }
 
         difference_list = sorted([[item, page_index - item[0]] for item in
