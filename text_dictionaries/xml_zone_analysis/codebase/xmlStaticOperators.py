@@ -12,6 +12,7 @@ def clear_destination(path):
 
     elif os.path.isdir(path):
         if os.path.exists(path):
+            # accounts for OS error in fully deleting dir. in time.
             try:
                 shutil.rmtree(path)
             except:
@@ -35,8 +36,9 @@ def data_to_csv(data_input, clean, full, out_path, out_fiche, out_page, head, fo
 def find_unique_id(clean_table, full, out_path, out_fiche, out_page, data_type, extension):
 
     def identify_id(i, clean_table, full, extension):
-        """Identify count ID of table per page."""
+        """Identify count ID of table per page such that save path is unique."""
 
+        # prepare path for clean tables.
         if clean_table:
             if full:
                 table_id = '{}-{}-{}_table_clean_full_{}.{}'.format(out_fiche, out_page,
@@ -46,6 +48,7 @@ def find_unique_id(clean_table, full, out_path, out_fiche, out_page, data_type, 
                 table_id = '{}-{}-{}_table_clean_part_{}.{}'.format(out_fiche, out_page,
                                                                     str(i).zfill(2), data_type,
                                                                     extension)
+        # prepare path for non-clean tables.
         else:
             if full:
                 table_id = '{}-{}-{}_table_imperfect_full_{}.{}'.format(out_fiche, out_page,
@@ -58,8 +61,13 @@ def find_unique_id(clean_table, full, out_path, out_fiche, out_page, data_type, 
 
         return table_id
 
+    # define iteration beginning and default path_found value.
     i = 1
     path_found = True
+
+    # loop until a table index for the specific page-fiche combination is not found.
+    # return the unique save path, combining the unique table index with other path strings.
+
     while path_found == True:
         table_id = identify_id(i, clean_table, full, extension)
         save_path = os.path.join(out_path, table_id)
