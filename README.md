@@ -10,6 +10,7 @@ Object Oriented Tools manage the following tasks:
 - Manually zone text and tables using OCR XML and text output
 - Organise and analyse unstructured / error-prone OCR text output
 
-<br>
+<br/>
+
 ## Example Input
 <img src = "https://github.com/alextruesdale/moodys-image-processing/blob/master/repository_media/Banks19380027-0070.png" alt = "1940_plots_11" title = "1940_plots_11" align = "center" width = "850" />
