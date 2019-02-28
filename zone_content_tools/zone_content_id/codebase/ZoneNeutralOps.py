@@ -33,7 +33,7 @@ def test_consec_years(row):
 
     return value_out
 
-def update_and_output(zones_small, account_df_out, balance_df_out, stock_bond_df_out, reference_df_out):
+def update_and_output(zones_small, account_df_out, balance_df_out, stock_bond_df_out, reference_df_out, end_df_out):
     """Update original .csv file and save as new .csv file."""
 
     working_df = file_to_df(zones_small)
@@ -41,16 +41,18 @@ def update_and_output(zones_small, account_df_out, balance_df_out, stock_bond_df
     balance_column = balance_df_out[['bal_sheet']]
     stock_bond_columns = stock_bond_df_out[['stock_rec', 'bonds_rec']]
     reference_column = reference_df_out[['ref_on_stocks', 'ref_on_bonds']]
+    end_search_columns = end_df_out[['provis_rtng', 'comp_name']]
 
     working_df = working_df.join(account_column)
     working_df = working_df.join(balance_column)
     working_df = working_df.join(stock_bond_columns)
     working_df = working_df.join(reference_column)
+    working_df = working_df.join(end_search_columns)
 
     working_df = working_df[['file_name', 'manual', 'manual_yr', 'fiche', 'fiche_num',
                              'zone_num', 'CoName', 'CoNum', 'Hist', 'Dir', 'inc_table',
                              'bal_sheet', 'stock_rec', 'bonds_rec', 'ref_on_stocks',
-                             'ref_on_bonds', 'text']]
+                             'ref_on_bonds', 'provis_rtng', 'comp_name', 'text']]
 
     save_name = 'ZoneClassificationsUpdate.csv'
     out_path = os.getcwd()[:-8] + save_name

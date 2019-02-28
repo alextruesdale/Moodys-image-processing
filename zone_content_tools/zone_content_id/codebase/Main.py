@@ -4,6 +4,7 @@ from IncomeAccountOverhead import income_account_overhead
 from BalanceSheetOverhead import balance_sheet_overhead
 from StockBondOverhead import stock_bond_overhead
 from ReferenceOverhead import reference_overhead
+from EndSearchOverhead import end_search_overhead
 import ZoneNeutralOps as zno
 
 import sys
@@ -27,12 +28,14 @@ def main():
     zone_data_balance = balance_sheet_overhead(zones_full, zones_small)
     zone_data_stock_bond = stock_bond_overhead(zones_full, zones_small)
     zone_data_reference = reference_overhead(zones_full, zones_small)
+    zone_data_end_search = end_search_overhead(zones_full, zones_small)
 
     # prepare output dataframes from above classes as part of original zoning file and save.
     zno.update_and_output(zones_small, zone_data_account.output_dataframe,
                           zone_data_balance.output_dataframe,
                           zone_data_stock_bond.output_dataframe,
-                          zone_data_reference.output_dataframe)
+                          zone_data_reference.output_dataframe,
+                          zone_data_end_search.output_dataframe)
 
     # print concluding job console statement with summarising data.
     RunTimeData.concluding_print_statement(start_time, time_elapsed)
